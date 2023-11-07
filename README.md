@@ -1,0 +1,2 @@
+# RichiiMahjongScoreDatabase
+tsumo~nya!
