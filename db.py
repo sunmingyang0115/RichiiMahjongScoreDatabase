@@ -51,7 +51,7 @@ def _init():
       """
       self.conn = sqlite3.connect(path)
       self.conn.execute("""
-create table "user_scores" (
+create table if not exists "user_scores" (
 	"game_id"	integer not null,
 	"user_id"	text not null,
 	"date"	text not null,
