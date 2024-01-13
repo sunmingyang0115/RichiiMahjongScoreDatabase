@@ -79,8 +79,8 @@ create table if not exists "user_scores" (
   Get all games a user has participated in
   """
         c = self.conn.cursor()
-        c.execute("select game_id, rank, score from user_scores where user_id = ?1", (user_id,))
-        scores = [UserScoreRecord(user_id, v[0], v[1], v[2]) for v in c.fetchall()]
+        c.execute("select game_id, date, rank, score from user_scores where user_id = ?1", (user_id,))
+        scores = [UserScoreRecord(user_id, v[0], v[1], v[2], v[3]) for v in c.fetchall()]
         c.close()
         return scores
 
