@@ -1,4 +1,5 @@
 import functools
+from datetime import date
 from typing import Union, List, Callable
 from richii.module.db import Database, GameRecord
 
@@ -54,7 +55,7 @@ async def command_store(frags: List[str], msg_id: str, db: Database):
         except:
             raise RuntimeError(f"{i + 2}th argument isn't an integer")
         players.append((ping, money))
-    record = GameRecord("discord:", msg_id, [v[0] for v in players], [v[1] for v in players])
+    record = GameRecord("discord:"+msg_id, str(date.today()), [v[0] for v in players], [v[1] for v in players])
     db.new_game(record)
 
 
@@ -102,3 +103,4 @@ def get_response(message: str) -> str:
         return '`this is a help message nya~`'
 
     return 'I didn\'t understand what u said nya~~'
+

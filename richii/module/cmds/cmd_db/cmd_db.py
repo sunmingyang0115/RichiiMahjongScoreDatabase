@@ -3,7 +3,7 @@ from richii.module.cmds.cmd_db.cmd_db_util import command_store, command_fetch
 
 
 async def on_cmd_db_store(self, message, frags):
-    await command_store(frags, message.id, self.db)
+    await command_store(frags, str(message.id), self.db)
     await message.add_reaction('✅')
 
 
@@ -13,5 +13,5 @@ async def on_cmd_db_get(self, message, frags):
     usr = await command_fetch(frags, self.db)
     out = ''
     for e in usr:
-        out += e+'\n'
+        out = out + str(e) + "\n"
     await message.channel.send(out)
