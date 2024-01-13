@@ -11,5 +11,7 @@ async def on_cmd_db_get(self, message, frags):
     print(frags)
     # frags[3] is user id
     usr = await command_fetch(frags, self.db)
+    out = ''
     for e in usr:
-        print(e)
+        out += e+'\n'
+    await message.channel.send(out)
