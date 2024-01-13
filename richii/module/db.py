@@ -38,6 +38,9 @@ A record representing a user's participation in a game.
         self.rank = rank
         self.final_score = final_score
 
+    def __repr__(self):
+        return self.user_id + "\n" + self.game_id + "\n" + self.date + "\n" + self.rank + "\n" + self.final_score
+
 
 class Database:
     """
