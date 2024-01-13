@@ -9,6 +9,7 @@ class MyClient(discord.Client):
     async def on_ready(self):
         print('Logged on as', self.user)
 
+        #1231232 321 312
     async def on_message(self, message):
         # don't respond to ourselves
         if message.author == self.user:
