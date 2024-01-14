@@ -1,7 +1,7 @@
 import functools
 from datetime import date
 from typing import Union, List, Callable
-from richii.module.db import Database, GameRecord
+from db import Database, GameRecord
 
 
 # deprecated

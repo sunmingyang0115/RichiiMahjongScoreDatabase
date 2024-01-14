@@ -1,5 +1,5 @@
 import discord
-from module.bot import BotClient
+from bot import BotClient
 
 token = 'aminger'
 with open('~/../token.txt') as file:
