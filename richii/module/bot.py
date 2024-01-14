@@ -19,8 +19,8 @@ class BotClient(discord.Client):
         print('Logged on as', self.user)
 
     async def on_message(self, message):
-        frags = message.content.split(' ')
-
+        frags = message.content.split()
+        print(frags)
         if message.author == self.user or frags[0] != BotClient.prefix:
             return
 
@@ -32,4 +32,4 @@ class BotClient(discord.Client):
             elif frags[1] == 'db' and frags[2] == 'get':
                 await on_cmd_db_get(self, message, frags)
         except Exception as err:
-            await message.channel.send("An error has occured: ```" + str(err.args[0]) +"```")
+            await message.channel.send("An error has occured: ```" + str(err.args[0]) + "```")
