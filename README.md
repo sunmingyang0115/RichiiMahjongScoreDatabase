@@ -4,6 +4,6 @@ tsumo~nya!
 
 ---
 
-# RichiiMahjongScoreDatabase
+# RiichiMahjongScoreDatabase
 
-## A Discord Bot made with discord.py, for the Richii Mahjong Club
+## A Discord Bot made with discord.py, for the Riichi Mahjong Club
