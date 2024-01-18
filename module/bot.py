@@ -23,7 +23,6 @@ class BotClient(discord.Client):
         print(frags)
         if message.author == self.user or frags[0] != BotClient.prefix:
             return
-
         try:
             if frags[1] == 'ping':
                 await on_cmd_ping(self, message, frags)
@@ -31,5 +30,7 @@ class BotClient(discord.Client):
                 await on_cmd_db_store(self, message, frags)
             elif frags[1] == 'db' and frags[2] == 'get':
                 await on_cmd_db_get(self, message, frags)
+            elif message.channel.id == 1175888656532262942:
+                await on_cmd_db_store(self, message, ["ron", "db", "store"] + frags)
         except Exception as err:
             await message.channel.send("An error has occured: ```" + str(err.args[0]) + "```")
