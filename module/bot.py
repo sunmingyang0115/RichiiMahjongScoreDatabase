@@ -3,8 +3,8 @@ from typing import Any
 import discord
 from discord import Intents
 
-from cmds.cmd_db.cmd_db import on_cmd_db_store, on_cmd_db_get
-from cmds.cmd_ping.cmd_ping import on_cmd_ping
+from cmds.cmd_db import on_cmd_db_store, on_cmd_db_get
+from cmds.cmd_ping import on_cmd_ping
 from db import Database
 
 
