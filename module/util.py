@@ -1,5 +1,8 @@
 import functools
-from typing import Union
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Union
 
 def parse_ping(s: str) -> Union[int, None]:
     if (not s.startswith("<@")) or (not s.endswith(">")):

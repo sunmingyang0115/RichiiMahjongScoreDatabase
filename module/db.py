@@ -1,6 +1,7 @@
 import sqlite3
-from typing import List
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import List
 
 class GameRecord:
     """
@@ -44,13 +45,13 @@ A record representing a user's participation in a game.
 
 class Database:
     """
-Holds a simple database used to store user data
-"""
+    Holds a simple database used to store user data
+    """
 
     def __init__(self, path="db.sqlite"):
         """
-  Initializes the database to read from a file argument. Defaults to db.sqlite
-  """
+        Initializes the database to read from a file argument. Defaults to db.sqlite
+        """
         self.conn = sqlite3.connect(path)
         self.conn.execute("""
 create table if not exists "user_scores" (

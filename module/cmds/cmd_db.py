@@ -1,10 +1,12 @@
 from datetime import date
-from typing import Union, List
-
 import discord
 from db import GameRecord
-from bot import BotClient
 from util import ping_to_userid
+
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from typing import Union, List
+    from bot import BotClient
 
 def find_score2(frags: List[str]) -> Union[list[tuple[str, int]], None]:
     tot = 0
