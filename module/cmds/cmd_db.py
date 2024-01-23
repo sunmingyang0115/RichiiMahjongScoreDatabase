@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import date
 import discord
 from db import GameRecord
@@ -5,10 +7,10 @@ from util import ping_to_userid
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from typing import Union, List
+    from typing import Union
     from bot import BotClient
 
-def find_score2(frags: List[str]) -> Union[list[tuple[str, int]], None]:
+def find_score2(frags: list[str]) -> Union[list[tuple[str, int]], None]:
     tot = 0
     score_list = []
     for i in range(3, 11, 2):
@@ -29,7 +31,7 @@ def find_score2(frags: List[str]) -> Union[list[tuple[str, int]], None]:
         return None
 
 
-async def on_cmd_db_store(self: BotClient, message: discord.Message, frags: List[str]):
+async def on_cmd_db_store(self: BotClient, message: discord.Message, frags: list[str]):
     players = find_score2(frags)
     if players is None:
         raise RuntimeError("Invalid Data")
@@ -38,7 +40,7 @@ async def on_cmd_db_store(self: BotClient, message: discord.Message, frags: List
     await message.add_reaction('✅')
 
 
-async def on_cmd_db_get(self: BotClient, message: discord.Message, frags: List[str]):
+async def on_cmd_db_get(self: BotClient, message: discord.Message, frags: list[str]):
     # frags[3] is user id
     if len(frags) != 4:
         raise RuntimeError("Not enough/too many arguments!")

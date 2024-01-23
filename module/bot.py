@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import discord
 
 from cmds.cmd_db import on_cmd_db_store, on_cmd_db_get

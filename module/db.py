@@ -1,7 +1,4 @@
 import sqlite3
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from typing import List
 
 class GameRecord:
     """
@@ -9,10 +6,10 @@ A record representing one game. The users and final_scores members are always so
 """
     game_id: str
     date: str
-    users: List[str]
-    final_scores: List[int]
+    users: list[str]
+    final_scores: list[int]
 
-    def __init__(self, game_id: str, date: str, users: List[str], final_scores: List[int]):
+    def __init__(self, game_id: str, date: str, users: list[str], final_scores: list[int]):
         zipped = list(zip(users, final_scores))
         zipped.sort(key=lambda x: x[1], reverse=True)
         users, final_scores = zip(*zipped)
@@ -78,7 +75,7 @@ create table if not exists "user_scores" (
         c.execute("commit")
         c.close()
 
-    def get_user_games(self, user_id: str) -> List[UserScoreRecord]:
+    def get_user_games(self, user_id: str) -> list[UserScoreRecord]:
         """
   Get all games a user has participated in
   """
@@ -88,7 +85,7 @@ create table if not exists "user_scores" (
         c.close()
         return scores
 
-    def get_game(self, game_id: str) -> List[UserScoreRecord]:
+    def get_game(self, game_id: str) -> list[UserScoreRecord]:
         """
   Get the record for one game
   """
