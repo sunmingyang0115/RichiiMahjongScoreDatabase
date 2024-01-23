@@ -1,7 +1,10 @@
 from datetime import date
 from typing import Union, List
+
+import discord
 from db import GameRecord
-from module.util import ping_to_userid
+from bot import BotClient
+from util import ping_to_userid
 
 def find_score2(frags: List[str]) -> Union[list[tuple[str, int]], None]:
     tot = 0
@@ -24,7 +27,7 @@ def find_score2(frags: List[str]) -> Union[list[tuple[str, int]], None]:
         return None
 
 
-async def on_cmd_db_store(self, message, frags):
+async def on_cmd_db_store(self: BotClient, message: discord.Message, frags: List[str]):
     players = find_score2(frags)
     if players is None:
         raise RuntimeError("Invalid Data")
@@ -33,7 +36,7 @@ async def on_cmd_db_store(self, message, frags):
     await message.add_reaction('✅')
 
 
-async def on_cmd_db_get(self, message, frags):
+async def on_cmd_db_get(self: BotClient, message: discord.Message, frags: List[str]):
     # frags[3] is user id
     if len(frags) != 4:
         raise RuntimeError("Not enough/too many arguments!")

@@ -1,4 +1,7 @@
+from typing import List
 import discord
 
-async def on_cmd_ping(self, message, frags):
+from bot import BotClient
+
+async def on_cmd_ping(self: BotClient, message: discord.Message, frags: List[str]):
     await message.channel.send('pong')

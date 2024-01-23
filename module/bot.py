@@ -18,7 +18,7 @@ class BotClient(discord.Client):
     async def on_ready(self):
         print('Logged on as', self.user)
 
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         frags = message.content.split()
         print(frags)
         if message.author == self.user or frags[0] != BotClient.prefix:
