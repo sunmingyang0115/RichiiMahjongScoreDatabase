@@ -2,7 +2,7 @@ import discord
 from bot import BotClient
 
 token = 'aminger'
-with open('~/../token.txt') as file:
+with open('../token.txt') as file:
     token = file.read()
 
 intents = discord.Intents.default()
