@@ -214,11 +214,26 @@ create table if not exists "user_stats" (
         c.execute("commit")
         c.close()
     
-    def list_user_stats(self, sorting: str, number: int) -> list[UserStatsRecord]:
+    def list_user_stats(self, sorting: str, limit: int = -1) -> list[UserStatsRecord]:
         """
         List top n users using a specified sorting order.
         Sorting can be one of "games_played", "games_won", or "avg_rank"
         """
+        order_by = "!invalid!"
+        if sorting == "games_played":
+            order_by = "games_played desc, user_id asc"
+        elif sorting == "games_won":
+            order_by = "games_won desc, user_id asc"
+        elif sorting == "avg_rank":
+            order_by = "cast(sum_ranks as float) / cast(games_played as float) asc, user_id asc"
+        else:
+            raise ValueError("sorting has an invalid value")
+        sql = f"select user_id, games_played, games_won, sum_ranks from user_stats order by {order_by} limit :a0"
+        c = self.conn.cursor()
+        c.execute(sql, _args(limit))
+        records = [UserStatsRecord(v[0], v[1], v[2], v[3]) for v in c.fetchall()]
+        c.close()
+        return records
 
 
     def fix_user_stats(self):

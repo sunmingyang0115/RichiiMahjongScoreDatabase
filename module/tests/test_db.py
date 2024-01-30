@@ -60,6 +60,8 @@ class TestDatabase(unittest.TestCase):
         self.db = Database(":memory:")
         self.g1 = GameRecord("test:1234", "2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.g2 = GameRecord("test:4321", "2024-01-02", ["Frieren", "Texas", "Arcueid", "Ichihime"], [500, 80000, -10500, 30000])
+        self.g3 = GameRecord("test:3333", "2024-01-03", ["Amiya", "Texas", "Neco Arc", "Ichihime"], [90000, 0, -5000, 15000])
+        self.g4 = GameRecord("test:9090", "2024-01-04", ["Nijika", "Amiya", "Horn", "Ichihime",], [40000, -500, 5000, 55500])
 
     def test_new_game_doesnt_explode(self):
         self.db.new_game(self.g1)
@@ -113,3 +115,54 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(s2, UserStatsRecord("Arcueid", 1, 0, 4))
         s3 = self.db.get_user_stats("Amiya")
         self.assertEqual(s3, UserStatsRecord("Amiya", 0, 0, 0))
+    
+    def test_list_user_stats_sorting_games_played(self):
+        [self.db.new_game(v) for v in [self.g1, self.g2, self.g3, self.g4]]
+        expected = [
+            UserStatsRecord("Ichihime", 4, 2, 6),
+            UserStatsRecord("Amiya", 3, 1, 7),
+            UserStatsRecord("Frieren", 2, 0, 6),
+            UserStatsRecord("Neco Arc", 2, 0, 8),
+            UserStatsRecord("Texas", 2, 1, 4),
+            UserStatsRecord("Arcueid", 1, 0, 4),
+            UserStatsRecord("Horn", 1, 0, 3),
+            UserStatsRecord("Nijika", 1, 0, 2),
+        ]
+        ls = self.db.list_user_stats("games_played")
+        self.assertEqual(ls, expected)
+        ls = self.db.list_user_stats("games_played", 5)
+        self.assertEqual(ls, expected[:5])
+    
+    def test_list_user_stats_sorting_games_won(self):
+        [self.db.new_game(v) for v in [self.g1, self.g2, self.g3, self.g4]]
+        expected = [
+            UserStatsRecord("Ichihime", 4, 2, 6),
+            UserStatsRecord("Amiya", 3, 1, 7),
+            UserStatsRecord("Texas", 2, 1, 4),
+            UserStatsRecord("Arcueid", 1, 0, 4),
+            UserStatsRecord("Frieren", 2, 0, 6),
+            UserStatsRecord("Horn", 1, 0, 3),
+            UserStatsRecord("Neco Arc", 2, 0, 8),
+            UserStatsRecord("Nijika", 1, 0, 2),
+        ]
+        ls = self.db.list_user_stats("games_won")
+        self.assertEqual(ls, expected)
+        ls = self.db.list_user_stats("games_won", 5)
+        self.assertEqual(ls, expected[:5])
+    
+    def test_list_user_stats_sorting_avg_rank(self):
+        [self.db.new_game(v) for v in [self.g1, self.g2, self.g3, self.g4]]
+        expected = [
+            UserStatsRecord("Ichihime", 4, 2, 6), # avg 1.50
+            UserStatsRecord("Nijika", 1, 0, 2), # 2.00
+            UserStatsRecord("Texas", 2, 1, 4), # avg 2.00
+            UserStatsRecord("Amiya", 3, 1, 7), # avg 2.33
+            UserStatsRecord("Frieren", 2, 0, 6), # avg 3.00
+            UserStatsRecord("Horn", 1, 0, 3), # avg 3.00
+            UserStatsRecord("Arcueid", 1, 0, 4), # avg 4.00
+            UserStatsRecord("Neco Arc", 2, 0, 8), # avg 4.00
+        ]
+        ls = self.db.list_user_stats("avg_rank")
+        self.assertEqual(ls, expected)
+        ls = self.db.list_user_stats("avg_rank", 5)
+        self.assertEqual(ls, expected[:5])
