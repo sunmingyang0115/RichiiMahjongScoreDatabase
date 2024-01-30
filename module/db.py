@@ -5,6 +5,9 @@ if TYPE_CHECKING:
     from typing import Union
     from io import TextIOBase
 
+def _args(*a):
+    return dict(zip([f"a{i}" for i in range(len(a))], a))
+
 class GameRecord:
     """
     A record representing one game. The users and final_scores members are always sorted from high scores to low scores.
@@ -106,6 +109,7 @@ class UserStatsRecord:
     def __repr__(self) -> str:
         return self.user_id + " " + str(self.games_played) + " " + str(self.games_won) + " " + str(self.sum_ranks)
 
+
 class Database:
     """
     Holds a simple database used to store user data
@@ -147,13 +151,13 @@ create table if not exists "user_stats" (
         c.execute("begin")
         for i in range(len(record.users)):
             c.execute(
-                "insert into user_scores (game_id, user_id, date, rank, score) values (?1, ?2, ?3, ?4, ?5)",
-                (record.game_id, record.users[i], record.date, i + 1, record.final_scores[i])
+                "insert into user_scores (game_id, user_id, date, rank, score) values (:a0, :a1, :a2, :a3, :a4)",
+                _args(record.game_id, record.users[i], record.date, i + 1, record.final_scores[i])
             )
             c.execute(
-                "insert into user_stats (user_id, games_played, games_won, sum_ranks) values (?1, 1, ?2, ?3)\n" +
-                "on conflict(user_id) do update set games_played = games_played + 1, games_won = games_won + ?2, sum_ranks = sum_ranks + ?3",
-                (record.users[i], 1 if i == 0 else 0, i + 1)
+                "insert into user_stats (user_id, games_played, games_won, sum_ranks) values (:a0, 1, :a1, :a2)\n" +
+                "on conflict(user_id) do update set games_played = games_played + 1, games_won = games_won + :a1, sum_ranks = sum_ranks + :a2",
+                _args(record.users[i], 1 if i == 0 else 0, i + 1)
             )
         c.execute("commit")
         c.close()
@@ -163,7 +167,7 @@ create table if not exists "user_stats" (
         Get all games a user has participated in
         """
         c = self.conn.cursor()
-        c.execute("select game_id, date, rank, score from user_scores where user_id = ?1", (user_id,))
+        c.execute("select game_id, date, rank, score from user_scores where user_id = :a0", _args(user_id,))
         scores = [UserScoreRecord(user_id, v[0], v[1], v[2], v[3]) for v in c.fetchall()]
         c.close()
         return scores
@@ -173,7 +177,7 @@ create table if not exists "user_stats" (
         Get the record for one game
         """
         c = self.conn.cursor()
-        c.execute("select user_id, date, score from user_scores where game_id = ?1", (game_id,))
+        c.execute("select user_id, date, score from user_scores where game_id = :a0", _args(game_id,))
         value = c.fetchall()
         if len(value) == 0: return None
         if len(value) not in [3, 4]: raise RuntimeError(f"Invalid game detected; DB is corrupted (game_id={game_id})")
@@ -187,7 +191,7 @@ create table if not exists "user_stats" (
         Gets a user's stats
         """
         c = self.conn.cursor()
-        c.execute("select games_played, games_won, sum_ranks from user_stats where user_id = ?1", (user_id,))
+        c.execute("select games_played, games_won, sum_ranks from user_stats where user_id = :a0", _args(user_id,))
         res = c.fetchone()
         c.close()
         if res == None:
@@ -203,13 +207,20 @@ create table if not exists "user_stats" (
         game = self.get_game(game_id)
         for i in range(len(game.users)):
             c.execute("update user_stats\n" + 
-                      "set games_played = games_played - 1, games_won = games_won - ?2, sum_ranks = sum_ranks - ?3\n" +
-                      "where user_id = ?1",
-                      (game.users[i], 1 if i == 0 else 0, i + 1))
-        c.execute("delete from user_scores where game_id = ?1", (game_id,))
+                      "set games_played = games_played - 1, games_won = games_won - :a1, sum_ranks = sum_ranks - :a2\n" +
+                      "where user_id = :a0",
+                      _args(game.users[i], 1 if i == 0 else 0, i + 1))
+        c.execute("delete from user_scores where game_id = :a0", _args(game_id,))
         c.execute("commit")
         c.close()
     
+    def list_user_stats(self, sorting: str, number: int) -> list[UserStatsRecord]:
+        """
+        List top n users using a specified sorting order.
+        Sorting can be one of "games_played", "games_won", or "avg_rank"
+        """
+
+
     def fix_user_stats(self):
         """
         Regenerates the entire user_stats table from user_games (an expensive operation)
