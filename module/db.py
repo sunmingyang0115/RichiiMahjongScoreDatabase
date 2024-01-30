@@ -240,10 +240,19 @@ create table if not exists "user_stats" (
         """
         Regenerates the entire user_stats table from user_games (an expensive operation)
         """
+        raise NotImplementedError()
 
 
     def export_as_csv(self, user_games: TextIOBase, user_stats: TextIOBase):
         """
         Exports the database to multiple CSV files
         """
-        pass
+        c = self.conn.cursor()
+        c.execute("select * from user_games")
+        # warning: doesn't do escaping! careful of arbitrary strings
+        for row in c:
+            user_games.write(','.join(row))
+        c.execute("select * from user_stats")
+        for row in c:
+            user_stats.write(','.join(row))
+        c.close()
