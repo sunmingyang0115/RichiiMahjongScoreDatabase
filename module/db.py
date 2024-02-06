@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 def _args(*a):
     return dict(zip([f"a{i}" for i in range(len(a))], a))
 
-class gamerecordnya:
+class GameRecord:
     """
     A record representing one game. The users and final_scores members are always sorted from high scores to low scores.
     """
@@ -29,7 +29,7 @@ class gamerecordnya:
         self.final_scores = list(final_scores)
     
     def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, gamerecordnya):
+        if isinstance(__value, GameRecord):
             return __value.game_id == self.game_id and \
                 __value.date == self.date and \
                 __value.users == self.users and \
@@ -37,12 +37,12 @@ class gamerecordnya:
         return False
     
     def __lt__(self, __value: object) -> bool:
-        if isinstance(__value, gamerecordnya):
+        if isinstance(__value, GameRecord):
             return self.game_id < __value.game_id
         return False
 
 
-class userscorerecordnya:
+class UserScoreRecord:
     """
     A record representing a user's participation in a game.
     """
@@ -61,7 +61,7 @@ class userscorerecordnya:
         self.final_score = final_score
 
     def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, userscorerecordnya):
+        if isinstance(__value, UserScoreRecord):
             return __value.user_id == self.user_id and \
                 __value.game_id == self.game_id and \
                 __value.date == self.date and \
@@ -70,14 +70,14 @@ class userscorerecordnya:
         return False
     
     def __lt__(self, __value: object) -> bool:
-        if isinstance(__value, userscorerecordnya):
+        if isinstance(__value, UserScoreRecord):
             return self.game_id < __value.game_id
         return False
 
     def __repr__(self):
         return self.user_id + " " + self.game_id + " " + self.date + " " + str(self.rank) + " " + str(self.final_score)
 
-class userstatsrecordnya:
+class UserStatsRecord:
     """
     A record representing a user's global statistics
     """
@@ -94,7 +94,7 @@ class userstatsrecordnya:
         self.sum_ranks = sum_ranks
     
     def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, userstatsrecordnya):
+        if isinstance(__value, UserStatsRecord):
             return __value.user_id == self.user_id and \
                 __value.games_played == self.games_played and \
                 __value.games_won == self.games_won and \
@@ -102,7 +102,7 @@ class userstatsrecordnya:
         return False
     
     def __lt__(self, __value: object) -> bool:
-        if isinstance(__value, userstatsrecordnya):
+        if isinstance(__value, UserStatsRecord):
             return self.user_id < __value.user_id
         return False
     
@@ -110,7 +110,7 @@ class userstatsrecordnya:
         return self.user_id + " " + str(self.games_played) + " " + str(self.games_won) + " " + str(self.sum_ranks)
 
 
-class databasenya:
+class Database:
     """
     Holds a simple database used to store user data
     """
@@ -141,7 +141,7 @@ create table if not exists "user_stats" (
 """)
         self.conn.isolation_level = None
 
-    def new_game(self, record: gamerecordnya):
+    def new_game(self, record: GameRecord):
         """
         Records a new game in the database
         """
@@ -162,17 +162,17 @@ create table if not exists "user_stats" (
         c.execute("commit")
         c.close()
 
-    def get_user_games(self, user_id: str) -> list[userscorerecordnya]:
+    def get_user_games(self, user_id: str) -> list[UserScoreRecord]:
         """
         Get all games a user has participated in
         """
         c = self.conn.cursor()
         c.execute("select game_id, date, rank, score from user_scores where user_id = :a0", _args(user_id,))
-        scores = [userscorerecordnya(user_id, v[0], v[1], v[2], v[3]) for v in c.fetchall()]
+        scores = [UserScoreRecord(user_id, v[0], v[1], v[2], v[3]) for v in c.fetchall()]
         c.close()
         return scores
 
-    def get_game(self, game_id: str) -> Union[gamerecordnya, None]:
+    def get_game(self, game_id: str) -> Union[GameRecord, None]:
         """
         Get the record for one game
         """
@@ -182,11 +182,11 @@ create table if not exists "user_stats" (
         if len(value) == 0: return None
         if len(value) not in [3, 4]: raise RuntimeError(f"Invalid game detected; DB is corrupted (game_id={game_id})")
         users, dates, scores = zip(*value)
-        game = gamerecordnya(game_id, dates[0], users, scores)
+        game = GameRecord(game_id, dates[0], users, scores)
         c.close()
         return game
 
-    def get_user_stats(self, user_id: str) -> Union[userstatsrecordnya, None]:
+    def get_user_stats(self, user_id: str) -> Union[UserStatsRecord, None]:
         """
         Gets a user's stats
         """
@@ -196,7 +196,7 @@ create table if not exists "user_stats" (
         c.close()
         if res == None:
             return None
-        return userstatsrecordnya(user_id, res[0], res[1], res[2])
+        return UserStatsRecord(user_id, res[0], res[1], res[2])
 
     def delete_game(self, game_id: str):
         """
@@ -214,7 +214,7 @@ create table if not exists "user_stats" (
         c.execute("commit")
         c.close()
     
-    def list_user_stats(self, sorting: str, limit: int = -1) -> list[userstatsrecordnya]:
+    def list_user_stats(self, sorting: str, limit: int = -1) -> list[UserStatsRecord]:
         """
         List top n users using a specified sorting order.
         Sorting can be one of "games_played", "games_won", or "avg_rank"
@@ -231,7 +231,7 @@ create table if not exists "user_stats" (
         sql = f"select user_id, games_played, games_won, sum_ranks from user_stats order by {order_by} limit :a0"
         c = self.conn.cursor()
         c.execute(sql, _args(limit))
-        records = [userstatsrecordnya(v[0], v[1], v[2], v[3]) for v in c.fetchall()]
+        records = [UserStatsRecord(v[0], v[1], v[2], v[3]) for v in c.fetchall()]
         c.close()
         return records
 
