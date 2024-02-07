@@ -1,9 +1,11 @@
 from __future__ import annotations
 import sqlite3
 from typing import TYPE_CHECKING
+import datetime
 if TYPE_CHECKING:
     from typing import Union
     from io import TextIOBase
+    from mjgame import MJGameNya
 
 def _args(*a):
     return dict(zip([f"a{i}" for i in range(len(a))], a))
@@ -16,12 +18,22 @@ class GameRecordNya:
     date: str
     users: list[str]
     final_scores: list[int]
+    _timestamp: int
 
     def __init__(self, game_id: str, date: str, users: list[str], final_scores: list[int]):
         if len(users) != len(set(users)):
             raise ValueError("Duplicate users found")
         zipped = list(zip(users, final_scores))
         zipped.sort(key=lambda x: x[1], reverse=True)
+
+        if date.startswith("unix:"):
+            self._timestamp = int(date.removeprefix("unix:"))
+        elif date.startswith("iso:"):
+            dt = datetime.datetime.fromisoformat(date.removeprefix("iso:"))
+            self._timestamp = int(dt.timestamp())
+        else:
+            raise ValueError("Unrecognized timestamp format")
+
         users, final_scores = zip(*zipped)
         self.game_id = game_id
         self.date = date
@@ -40,6 +52,12 @@ class GameRecordNya:
         if isinstance(__value, GameRecordNya):
             return self.game_id < __value.game_id
         return False
+    
+    def get_timestamp(self):
+        return self._timestamp
+
+    def into_mjgame(self) -> MJGameNya:
+        return MJGameNya(self.timestamp, self.game_id, dict(zip(self.users, self.final_scores)))
 
 
 class UserScoreRecordNya:
@@ -52,8 +70,17 @@ class UserScoreRecordNya:
     # 1-indexed rank
     rank: int
     final_score: int
+    _timestamp: int
 
     def __init__(self, user_id: str, game_id: str, date: str, rank: int, final_score: int):
+        if date.startswith("unix:"):
+            self._timestamp = int(date.removeprefix("unix:"))
+        elif date.startswith("iso:"):
+            dt = datetime.datetime.fromisoformat(date.removeprefix("iso:"))
+            self._timestamp = int(dt.timestamp())
+        else:
+            raise ValueError("Unrecognized timestamp format")
+
         self.user_id = user_id
         self.game_id = game_id
         self.date = date
@@ -76,6 +103,9 @@ class UserScoreRecordNya:
 
     def __repr__(self):
         return self.user_id + " " + self.game_id + " " + self.date + " " + str(self.rank) + " " + str(self.final_score)
+    
+    def get_timestamp(self):
+        return self._timestamp
 
 class UserStatsRecordNya:
     """
