@@ -185,3 +185,6 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(ls, expected)
         ls = self.db.list_user_stats("avg_rank", 5)
         self.assertEqual(ls, expected[:5])
+    
+    def test_that_fails(self):
+        raise RuntimeError()
