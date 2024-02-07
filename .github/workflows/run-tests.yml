@@ -8,8 +8,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Install Python
         run: |
-          apt update
-          apt install python3
+          sudo apt update
+          sudo apt install python3
       - name: Install PIP packages
         run: |
           python -m pip install discord
