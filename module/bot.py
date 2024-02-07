@@ -5,6 +5,7 @@ import discord
 from cmds.cmd_db import on_cmd_db_store, on_cmd_db_get
 from cmds.cmd_ping import on_cmd_ping
 from db import Database
+from embed_helper import get_simple_embed
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -30,6 +31,11 @@ class BotClient(discord.Client):
         try:
             if frags[1] == 'ping':
                 await on_cmd_ping(self, message, frags)
+                await get_simple_embed(
+                            self,
+                            message.channel,
+                            "Title of Embed",
+                            ["line1", "line2", "line3", "line4"])
             elif frags[1] == 'db' and frags[2] == 'store':
                 await on_cmd_db_store(self, message, frags)
             elif frags[1] == 'db' and frags[2] == 'get':
