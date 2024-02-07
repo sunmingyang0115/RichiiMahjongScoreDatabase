@@ -1,42 +1,61 @@
 import unittest
 from db import DatabaseNya, GameRecordNya, UserScoreRecordNya, UserStatsRecordNya
+from mjgame import MJGameNya
 
 class TestDatabaseRecordsNya(unittest.TestCase):
     def test_game_record_equality(self):
-        a = GameRecordNya("test:1234", "2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
-        b = GameRecordNya("test:1234", "2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        a = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        b = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.assertEqual(a, b)
-        b1 = GameRecordNya("test:4321", "2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        b1 = GameRecordNya("test:4321", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.assertNotEqual(a, b1)
-        b2 = GameRecordNya("test:1234", "2024-02-14", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        b2 = GameRecordNya("test:1234", "unix:1704171600", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.assertNotEqual(a, b2)
-        b3 = GameRecordNya("test:1234", "2024-01-01", ["Frieren", "Texas", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        b3 = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Texas", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.assertNotEqual(a, b3)
-        b4 = GameRecordNya("test:1234", "2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 6000, 51000])
+        b4 = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 6000, 51000])
         self.assertNotEqual(a, b4)
 
     def test_game_record_sorts_scores(self):
-        record = GameRecordNya("test:1234", "2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        record = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.assertEqual(record.users, ["Ichihime", "Amiya", "Frieren", "Neco Arc"])
         self.assertEqual(record.final_scores, [50000, 32000, 11000, 7000])
     
+    def test_game_record_into_mjgame(self):
+        record = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        mjgame = record.into_mjgame()
+        self.assertEqual(mjgame.get_gameid(), "test:1234")
+        self.assertEqual(mjgame.get_date(), 1704085200)
+        self.assertEqual(mjgame.get_raw_scores(), {"Frieren": 11000, "Amiya": 32000, "Neco Arc": 7000, "Ichihime": 50000})
+    
+    def test_game_record_from_mjgame(self):
+        mjgame = MJGameNya(1704085200, "test:1234", {"Frieren": 11000, "Amiya": 32000, "Neco Arc": 7000, "Ichihime": 50000})
+        record = GameRecordNya.from_mjgame(mjgame)
+        self.assertEqual(record, GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000]))
+
     def test_game_record_rejects_duplicate_users(self):
-        self.assertRaises(ValueError, lambda: GameRecordNya("test:4321", "2024-01-01", ["Neco Arc", "Neco Arc", "Neco Arc", "Neco Arc"], [25000, 25000, 25000, 25000]))
+        self.assertRaises(ValueError, lambda: GameRecordNya("test:4321", "unix:1704085200", ["Neco Arc", "Neco Arc", "Neco Arc", "Neco Arc"], [25000, 25000, 25000, 25000]))
+
+    def test_game_record_rejects_invalid_date(self):
+        self.assertRaises(ValueError, lambda: GameRecordNya("test:4321", "invalid:date", ["Neco Arc", "Neco Arc", "Neco Arc", "Neco Arc"], [25000, 25000, 25000, 25000]))
 
     def test_user_score_record_equality(self):
-        a = UserScoreRecordNya("Ichihime", "test:1234", "2024-01-01", 1, 50000)
-        b = UserScoreRecordNya("Ichihime", "test:1234", "2024-01-01", 1, 50000)
+        a = UserScoreRecordNya("Ichihime", "test:1234", "unix:1704085200", 1, 50000)
+        b = UserScoreRecordNya("Ichihime", "test:1234", "unix:1704085200", 1, 50000)
         self.assertEqual(a, b)
-        b1 = UserScoreRecordNya("Ichihime", "test:4321", "2024-01-01", 1, 50000)
+        b1 = UserScoreRecordNya("Ichihime", "test:4321", "unix:1704085200", 1, 50000)
         self.assertNotEqual(a, b1)
-        b2 = UserScoreRecordNya("Neco Arc", "test:1234", "2024-01-01", 1, 50000)
+        b2 = UserScoreRecordNya("Neco Arc", "test:1234", "unix:1704085200", 1, 50000)
         self.assertNotEqual(a, b2)
-        b3 = UserScoreRecordNya("Ichihime", "test:1234", "2024-02-14", 1, 50000)
+        b3 = UserScoreRecordNya("Ichihime", "test:1234", "unix:1704171600", 1, 50000)
         self.assertNotEqual(a, b3)
-        b4 = UserScoreRecordNya("Ichihime", "test:1234", "2024-01-01", 4, 50000)
+        b4 = UserScoreRecordNya("Ichihime", "test:1234", "unix:1704085200", 4, 50000)
         self.assertNotEqual(a, b4)
-        b5 = UserScoreRecordNya("Ichihime", "test:1234", "2024-01-01", 1, 25000)
+        b5 = UserScoreRecordNya("Ichihime", "test:1234", "unix:1704085200", 1, 25000)
         self.assertNotEqual(a, b5)
+    
+    def test_user_score_record_rejects_invalid_date(self):
+        self.assertRaises(ValueError, lambda: UserScoreRecordNya("Ichihime", "test:1234", "invalid:date", 1, 50000))
     
     def test_user_stats_record_equality(self):
         a = UserStatsRecordNya("Ichihime", 89223, 30112, 205956)
@@ -58,10 +77,10 @@ class TestDatabase(unittest.TestCase):
     """
     def setUp(self):
         self.db = DatabaseNya(":memory:")
-        self.g1 = GameRecordNya("test:1234", "2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
-        self.g2 = GameRecordNya("test:4321", "2024-01-02", ["Frieren", "Texas", "Arcueid", "Ichihime"], [500, 80000, -10500, 30000])
-        self.g3 = GameRecordNya("test:3333", "2024-01-03", ["Amiya", "Texas", "Neco Arc", "Ichihime"], [90000, 0, -5000, 15000])
-        self.g4 = GameRecordNya("test:9090", "2024-01-04", ["Nijika", "Amiya", "Horn", "Ichihime",], [40000, -500, 5000, 55500])
+        self.g1 = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        self.g2 = GameRecordNya("test:4321", "unix:1704171600", ["Frieren", "Texas", "Arcueid", "Ichihime"], [500, 80000, -10500, 30000])
+        self.g3 = GameRecordNya("test:3333", "unix:1704258000", ["Amiya", "Texas", "Neco Arc", "Ichihime"], [90000, 0, -5000, 15000])
+        self.g4 = GameRecordNya("test:9090", "unix:1704344400", ["Nijika", "Amiya", "Horn", "Ichihime",], [40000, -500, 5000, 55500])
 
     def test_new_game_doesnt_explode(self):
         self.db.new_game(self.g1)
@@ -93,8 +112,8 @@ class TestDatabase(unittest.TestCase):
         games = self.db.get_user_games("Ichihime")
         games.sort()
         self.assertEqual(games,
-            [UserScoreRecordNya("Ichihime", "test:1234", "2024-01-01", 1, 50000),
-            UserScoreRecordNya("Ichihime", "test:4321", "2024-01-02", 2, 30000)]
+            [UserScoreRecordNya("Ichihime", "test:1234", "unix:1704085200", 1, 50000),
+            UserScoreRecordNya("Ichihime", "test:4321", "unix:1704171600", 2, 30000)]
         )
 
     def test_get_user_games_returns_empty(self):
