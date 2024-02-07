@@ -1,7 +1,6 @@
 from __future__ import annotations
 import sqlite3
 from typing import TYPE_CHECKING
-import datetime
 from mjgame import MJGameNya
 if TYPE_CHECKING:
     from typing import Union
@@ -28,9 +27,6 @@ class GameRecordNya:
 
         if date.startswith("unix:"):
             self._timestamp = int(date.removeprefix("unix:"))
-        elif date.startswith("iso:"):
-            dt = datetime.datetime.fromisoformat(date.removeprefix("iso:"))
-            self._timestamp = int(dt.timestamp())
         else:
             raise ValueError("Unrecognized timestamp format")
 
@@ -79,9 +75,6 @@ class UserScoreRecordNya:
     def __init__(self, user_id: str, game_id: str, date: str, rank: int, final_score: int):
         if date.startswith("unix:"):
             self._timestamp = int(date.removeprefix("unix:"))
-        elif date.startswith("iso:"):
-            dt = datetime.datetime.fromisoformat(date.removeprefix("iso:"))
-            self._timestamp = int(dt.timestamp())
         else:
             raise ValueError("Unrecognized timestamp format")
 
