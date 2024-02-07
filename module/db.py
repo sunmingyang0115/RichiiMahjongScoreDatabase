@@ -2,10 +2,10 @@ from __future__ import annotations
 import sqlite3
 from typing import TYPE_CHECKING
 import datetime
+from mjgame import MJGameNya
 if TYPE_CHECKING:
     from typing import Union
     from io import TextIOBase
-    from mjgame import MJGameNya
 
 def _args(*a):
     return dict(zip([f"a{i}" for i in range(len(a))], a))
@@ -43,7 +43,7 @@ class GameRecordNya:
     def __eq__(self, __value: object) -> bool:
         if isinstance(__value, GameRecordNya):
             return __value.game_id == self.game_id and \
-                __value.date == self.date and \
+                __value._timestamp == self._timestamp and \
                 __value.users == self.users and \
                 __value.final_scores == self.final_scores
         return False
@@ -56,8 +56,12 @@ class GameRecordNya:
     def get_timestamp(self):
         return self._timestamp
 
+    def from_mjgame(mjgame: MJGameNya) -> GameRecordNya:
+        users, scores = [list(i) for i in zip(*mjgame.get_raw_scores().items())]
+        return GameRecordNya(mjgame.get_gameid(), f"unix:{mjgame.get_date()}", users, scores)
+
     def into_mjgame(self) -> MJGameNya:
-        return MJGameNya(self.timestamp, self.game_id, dict(zip(self.users, self.final_scores)))
+        return MJGameNya(self._timestamp, self.game_id, dict(zip(self.users, self.final_scores)))
 
 
 class UserScoreRecordNya:
@@ -91,7 +95,7 @@ class UserScoreRecordNya:
         if isinstance(__value, UserScoreRecordNya):
             return __value.user_id == self.user_id and \
                 __value.game_id == self.game_id and \
-                __value.date == self.date and \
+                __value._timestamp == self._timestamp and \
                 __value.rank == self.rank and \
                 __value.final_score == self.final_score
         return False

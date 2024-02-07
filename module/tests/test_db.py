@@ -1,10 +1,11 @@
 import unittest
 from db import DatabaseNya, GameRecordNya, UserScoreRecordNya, UserStatsRecordNya
+from mjgame import MJGameNya
 
 class TestDatabaseRecordsNya(unittest.TestCase):
     def test_game_record_equality(self):
         a = GameRecordNya("test:1234", "iso:2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
-        b = GameRecordNya("test:1234", "iso:2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        b = GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.assertEqual(a, b)
         b1 = GameRecordNya("test:4321", "iso:2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
         self.assertNotEqual(a, b1)
@@ -20,6 +21,18 @@ class TestDatabaseRecordsNya(unittest.TestCase):
         self.assertEqual(record.users, ["Ichihime", "Amiya", "Frieren", "Neco Arc"])
         self.assertEqual(record.final_scores, [50000, 32000, 11000, 7000])
     
+    def test_game_record_into_mjgame(self):
+        record = GameRecordNya("test:1234", "iso:2024-01-01", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000])
+        mjgame = record.into_mjgame()
+        self.assertEqual(mjgame.get_gameid(), "test:1234")
+        self.assertEqual(mjgame.get_date(), 1704085200)
+        self.assertEqual(mjgame.get_raw_scores(), {"Frieren": 11000, "Amiya": 32000, "Neco Arc": 7000, "Ichihime": 50000})
+    
+    def test_game_record_from_mjgame(self):
+        mjgame = MJGameNya(1704085200, "test:1234", {"Frieren": 11000, "Amiya": 32000, "Neco Arc": 7000, "Ichihime": 50000})
+        record = GameRecordNya.from_mjgame(mjgame)
+        self.assertEqual(record, GameRecordNya("test:1234", "unix:1704085200", ["Frieren", "Amiya", "Neco Arc", "Ichihime"], [11000, 32000, 7000, 50000]))
+
     def test_game_record_rejects_duplicate_users(self):
         self.assertRaises(ValueError, lambda: GameRecordNya("test:4321", "iso:2024-01-01", ["Neco Arc", "Neco Arc", "Neco Arc", "Neco Arc"], [25000, 25000, 25000, 25000]))
 
@@ -28,7 +41,7 @@ class TestDatabaseRecordsNya(unittest.TestCase):
 
     def test_user_score_record_equality(self):
         a = UserScoreRecordNya("Ichihime", "test:1234", "iso:2024-01-01", 1, 50000)
-        b = UserScoreRecordNya("Ichihime", "test:1234", "iso:2024-01-01", 1, 50000)
+        b = UserScoreRecordNya("Ichihime", "test:1234", "unix:1704085200", 1, 50000)
         self.assertEqual(a, b)
         b1 = UserScoreRecordNya("Ichihime", "test:4321", "iso:2024-01-01", 1, 50000)
         self.assertNotEqual(a, b1)
