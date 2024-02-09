@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import date
 import discord
-from db import GameRecord
+from db import GameRecordNya
 from util import ping_to_userid
 
 from typing import TYPE_CHECKING
@@ -35,7 +35,7 @@ async def on_cmd_db_store(self: BotClient, message: discord.Message, frags: list
     players = find_score2(frags)
     if players is None:
         raise RuntimeError("Invalid Data")
-    record = GameRecord("discord:" + message.id, str(date.today()), [v[0] for v in players], [v[1] for v in players])
+    record = GameRecordNya("discord:" + message.id, str(date.today()), [v[0] for v in players], [v[1] for v in players])
     self.db.new_game(record)
     await message.add_reaction('✅')
 

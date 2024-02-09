@@ -4,7 +4,7 @@ import discord
 
 from cmds.cmd_db import on_cmd_db_store, on_cmd_db_get
 from cmds.cmd_ping import on_cmd_ping
-from db import Database
+from db import DatabaseNya
 from embed_helper import get_simple_embed
 
 from typing import TYPE_CHECKING
@@ -18,7 +18,7 @@ class BotClient(discord.Client):
 
     def __init__(self, *, intents: Intents, **options: Any):
         super().__init__(intents=intents, **options)
-        self.db = Database()
+        self.db = DatabaseNya()
 
     async def on_ready(self):
         print('Logged on as', self.user)
