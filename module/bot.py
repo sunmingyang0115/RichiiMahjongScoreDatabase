@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import discord
 
-from cmds.cmd_db import on_cmd_db_store, on_cmd_db_get
+# from cmds.cmd_db import on_cmd_db_store, on_cmd_db_get
 from cmds.cmd_ping import on_cmd_ping
 from db import DatabaseNya
 from embed_helper import get_simple_embed
@@ -30,17 +30,17 @@ class BotClient(discord.Client):
             return
         try:
             if frags[1] == 'ping':
-                await on_cmd_ping(self, message, frags)
+                # await on_cmd_ping(self, message, frags)
                 await get_simple_embed(
                             self,
                             message.channel,
-                            "Title of Embed",
+                            "Pong",
                             ["line1", "line2", "line3", "line4"])
-            elif frags[1] == 'db' and frags[2] == 'store':
-                await on_cmd_db_store(self, message, frags)
-            elif frags[1] == 'db' and frags[2] == 'get':
-                await on_cmd_db_get(self, message, frags)
-            elif message.channel.id == 1175888656532262942:
-                await on_cmd_db_store(self, message, ["ron", "db", "store"] + frags)
+            # elif frags[1] == 'db' and frags[2] == 'store':
+            #     await on_cmd_db_store(self, message, frags)
+            # elif frags[1] == 'db' and frags[2] == 'get':
+            #     await on_cmd_db_get(self, message, frags)
+            # elif message.channel.id == 1175888656532262942:
+            #     await on_cmd_db_store(self, message, ["ron", "db", "store"] + frags)
         except Exception as err:
             await message.channel.send("An error has occured: ```" + str(err.args[0]) + "```")
