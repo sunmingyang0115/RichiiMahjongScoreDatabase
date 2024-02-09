@@ -1,8 +1,8 @@
-import re
 from typing import TYPE_CHECKING
 import copy
 if TYPE_CHECKING:
     from typing import Union
+import re
 
 
 class MJGameNya():
@@ -18,7 +18,7 @@ class MJGameNya():
     def __init__(self, date:int, gameid:str, raw_scores:dict[str, int]):
         self._date = date
         self._gameid = gameid
-        self._raw_scores = raw_scores
+        self._raw_scores = raw_scores   
     
     def get_users_ordered(self):
         lst = list(self._raw_scores.items())
@@ -45,7 +45,7 @@ class MJGameNya():
                     re.match(re_uid, s)[0] == s for s in bar[::2])
             or not all(s.replace('.', '', 1).isdigit() for s in bar[1::2])):
             return None
-        
+        x
         if len(set(bar[::2])) < 4:
             return None
 
