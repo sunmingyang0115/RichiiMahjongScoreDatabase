@@ -1,3 +1,4 @@
+from io import StringIO
 import unittest
 from db import DatabaseNya, GameRecordNya, UserScoreRecordNya, UserStatsRecordNya
 from mjgame import MJGameNya
@@ -185,3 +186,37 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(ls, expected)
         ls = self.db.list_user_stats("avg_rank", 5)
         self.assertEqual(ls, expected[:5])
+    
+    def test_export_csv(self):
+        [self.db.new_game(v) for v in [self.g1, self.g2]]
+
+        def setify(x):
+            return set([i for i in x.splitlines() if len(i)])
+
+        expected_user_scores = """
+game_id,user_id,date,rank,score
+test:1234,Frieren,unix:1704085200,3,11000
+test:1234,Amiya,unix:1704085200,2,32000
+test:1234,Neco Arc,unix:1704085200,4,7000
+test:1234,Ichihime,unix:1704085200,1,50000
+test:4321,Frieren,unix:1704171600,3,500
+test:4321,Texas,unix:1704171600,1,80000
+test:4321,Arcueid,unix:1704171600,4,-10500
+test:4321,Ichihime,unix:1704171600,2,30000
+"""
+        expected_user_stats = """
+user_id,games_played,games_won,sum_ranks
+Frieren,2,0,6
+Amiya,1,0,2
+Neco Arc,1,0,4
+Ichihime,2,1,3
+Texas,1,1,1
+Arcueid,1,0,4
+"""
+        user_scores = StringIO()
+        user_stats = StringIO()
+        self.db.export_as_csv(user_scores, user_stats)
+        user_scores = user_scores.getvalue()
+        user_stats = user_stats.getvalue()
+        self.assertEqual(setify(expected_user_scores), setify(user_scores))
+        self.assertEqual(setify(expected_user_stats), setify(user_stats))

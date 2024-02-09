@@ -270,16 +270,21 @@ create table if not exists "user_stats" (
         raise NotImplementedError()
 
 
-    def export_as_csv(self, user_games: TextIOBase, user_stats: TextIOBase):
+    def export_as_csv(self, user_scores: TextIOBase, user_stats: TextIOBase):
         """
         Exports the database to multiple CSV files
         """
         c = self.conn.cursor()
-        c.execute("select * from user_games")
+
         # warning: doesn't do escaping! careful of arbitrary strings
+        c.execute("select * from user_scores")
+        user_scores.write("game_id,user_id,date,rank,score\n")
         for row in c:
-            user_games.write(','.join(row))
+            user_scores.write(','.join([str(i) for i in row]) + "\n")
+        
         c.execute("select * from user_stats")
+        user_stats.write("user_id,games_played,games_won,sum_ranks\n")
         for row in c:
-            user_stats.write(','.join(row))
+            user_stats.write(','.join([str(i) for i in row]) + "\n")
+        
         c.close()
