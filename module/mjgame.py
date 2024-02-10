@@ -45,7 +45,7 @@ class MJGameNya():
                     re.match(re_uid, s)[0] == s for s in bar[::2])
             or not all(s.replace('.', '', 1).isdigit() for s in bar[1::2])):
             return None
-        x
+        
         if len(set(bar[::2])) < 4:
             return None
 
@@ -57,4 +57,4 @@ class MJGameNya():
         if sum(scores) <= 100:
             scores = [int(1000*s) for s in scores]
         
-        return dict(zip(uid, scores))
+        return (dict(zip(uid, scores)))
