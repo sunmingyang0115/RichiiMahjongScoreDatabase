@@ -99,7 +99,7 @@ class UserScoreRecordNya:
         return False
 
     def __repr__(self):
-        return self.user_id + " " + self.game_id + " " + self.date + " " + str(self.rank) + " " + str(self.final_score)
+        return str(self.user_id) + " " + str(self.game_id) + " " + str(self.date) + " " + str(self.rank) + " " + str(self.final_score)
     
     def get_timestamp(self):
         return self._timestamp
